@@ -1,0 +1,25 @@
+FROM golang:1.24-bullseye as builder
+
+WORKDIR /app
+
+RUN apt-get update && \
+    apt-get install -y clang llvm libelf-dev gcc make bpftool linux-headers-amd64 linux-libc-dev && \
+    ln -sfT /usr/include/x86_64-linux-gnu/asm /usr/include/asm
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+# Copy the simple security monitor file
+COPY simple_security_monitor.go /app/
+
+# Build the security monitor
+RUN go build -o security-monitor simple_security_monitor.go
+
+FROM debian:bullseye-slim
+WORKDIR /app
+RUN apt-get update && apt-get install -y libelf1 bpftool iproute2 net-tools && rm -rf /var/lib/apt/lists/*
+COPY --from=builder /app/security-monitor ./
+
+CMD ["/app/security-monitor"]

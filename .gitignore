@@ -1,0 +1,73 @@
+# Go
+# Compiled Object files, Static and Dynamic libs (Shared Objects)
+*.o
+*.a
+*.so
+*.dylib
+
+# Folders
+_obj
+_test
+vendor/
+
+# Architecture specific extensions/prefixes
+*.[568vq]
+[568vq].out
+
+# Go specific
+*.exe
+*.exe~
+*.dll
+*.test
+*.prof
+*.out
+*.bgo.go
+*.bgo.O
+/port-monitor
+/packet-counter
+/security-monitor
+
+# Go workspace file
+go.work
+
+# Dependency directories
+/vendor/
+/Godeps/
+
+# Generated files
+*.bpf.[ch]
+*.bpf.o
+*.skel.h
+*_bpfel.go
+*_bpfeb.go
+*.d
+
+# eBPF specific
+kernel/*.o
+kernel/vmlinux.h
+
+# IDE specific
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+/bin/
+/build/
+/dist/
+/debug/
+
+# Docker related
+.dockerignore
+*.env
+*.env.*
+docker-compose.override.yml
+
+# Log files
+*.log
+logs/

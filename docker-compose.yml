@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  ebpf-security-monitor:
+    build: 
+      context: .
+      dockerfile: Dockerfile.security
+    container_name: ebpf-security-monitor
+    privileged: true  # Required for eBPF operations
+    network_mode: host
+    environment:
+      - TZ=Europe/Istanbul
+    command: /app/security-monitor
