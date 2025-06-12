@@ -4,7 +4,7 @@ This project includes a user-space application written in **Go** and an **eBPF X
 
 ## 🎯 Project Status: SUCCESSFUL
 - ✅ eBPF XDP program is working
-- ✅ Go application successfully compiles and runs  
+- ✅ Go application successfully compiles and runs
 - ✅ Runs smoothly in Docker container
 - ✅ Comprehensive documentation ready
 
@@ -18,11 +18,13 @@ ebpf-golang/
 │       └── bpf_helpers.h       # eBPF helper functions
 ├── bpftrace-examples/          # bpftrace examples
 ├── main.go                     # Go application
-├── go.mod                      # Go module file
+├── main_port_monitor.go        # SSH port monitoring application
+├── LICENSE                     # MIT License
+├── Makefile                    # Build and run commands
 ├── Dockerfile                  # Docker configuration
 ├── docker-compose.yml          # Docker Compose
-├── tr-ebpf-golang.md          # Comprehensive documentation
-└── README.md                   # This file
+├── README.md                   # This file
+└── DEVELOPMENT.md              # Development guide
 ```
 
 ---
@@ -99,7 +101,7 @@ sudo ./packet-counter
 
 ## 📚 Additional Resources
 
-- **`tr-ebpf-golang.md`**: Detailed blog post and explanations
+- **`DEVELOPMENT.md`**: Development guide and workflow
 - **`bpftrace-examples/`**: Advanced eBPF examples
 - **Docker logs**: Follow outputs with `docker-compose logs -f`
 
@@ -109,7 +111,7 @@ sudo ./packet-counter
 
 ### Resolved Issues
 - ✅ bpf2go function naming issues fixed
-- ✅ Docker build issues (kernel headers, asm/types.h) resolved  
+- ✅ Docker build issues (kernel headers, asm/types.h) resolved
 - ✅ eBPF helper functions provided with custom header
 - ✅ Go module compatibility ensured
 
