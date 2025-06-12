@@ -152,15 +152,15 @@ func main() {
 	}
 	defer rb.Close()
 
-	log.Printf("SSH port (22) bağlantıları izleniyor... (interface: %s)", ifaceName)
-	log.Printf("Çıkmak için Ctrl+C")
+	log.Printf("Monitoring SSH port (22) connections... (interface: %s)", ifaceName)
+	log.Printf("Press Ctrl+C to exit")
 
 	// Set up signal handler for clean exit
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		<-sig
-		fmt.Println("\nKapatılıyor...")
+		fmt.Println("\nShutting down...")
 		rb.Close()
 		lnk.Close()
 		objs.Close()
@@ -184,7 +184,7 @@ func main() {
 			continue
 		}
 
-		log.Printf("SSH bağlantı denemesi: %s:%d -> %s:%d",
+		log.Printf("SSH connection attempt: %s:%d -> %s:%d",
 			ipToString(evt.SrcIP), evt.SrcPort,
 			ipToString(evt.DstIP), evt.DstPort)
 	}

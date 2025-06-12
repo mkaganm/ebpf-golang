@@ -1,6 +1,6 @@
-# bpftrace Örnekleri
+# bpftrace Examples
 
-## Dosya Açma Takibi
+## File Open Tracking
 
 ```bpftrace
 kprobe:do_sys_open {
@@ -8,7 +8,7 @@ kprobe:do_sys_open {
 }
 ```
 
-## Fonksiyon Süresi Ölçümü
+## Function Duration Measurement
 
 ```bpftrace
 uprobe:/usr/bin/myapp:myfunc
@@ -17,7 +17,7 @@ uprobe:/usr/bin/myapp:myfunc
 }
 uretprobe:/usr/bin/myapp:myfunc
 {
-    printf("Süre: %d ns\n", nsecs - @start[tid]);
+    printf("Duration: %d ns\n", nsecs - @start[tid]);
     delete(@start[tid]);
 }
 ```

@@ -70,18 +70,18 @@ monitor_packets() {
                 
                 # Show statistics
                 printf "$(show_time) "
-                printf "Toplam Paket: %'d | " $current_count
-                printf "Son 1 saniye: %d pkt/s | " $packets_per_sec
-                printf "Harita ID: %s\n" $map_id
+                printf "Total Packets: %'d | " $current_count
+                printf "Last 1 second: %d pkt/s | " $packets_per_sec
+                printf "Map ID: %s\n" $map_id
                 
                 prev_count=$current_count
                 iteration=$((iteration + 1))
             else
-                show_status "warning" "Paket sayısı okunamadı (harita boş olabilir)"
+                show_status "warning" "Packet count could not be read (map might be empty)"
             fi
         else
-            show_status "warning" "eBPF packet_count haritası bulunamadı"
-            show_status "info" "eBPF programının çalıştığından emin olun"
+            show_status "warning" "eBPF packet_count map not found"
+            show_status "info" "Ensure the eBPF program is running"
         fi
         
         sleep 1
@@ -90,17 +90,17 @@ monitor_packets() {
 
 # Function to show eBPF program info
 show_ebpf_info() {
-    echo "$(show_time) eBPF Program Bilgileri:"
+    echo "$(show_time) eBPF Program Information:"
     echo "================================"
     
     # List loaded programs
     echo ""
-    echo "Yüklü eBPF Programları:"
-    bpftool prog list 2>/dev/null | grep -E "(xdp|packet)" || echo "XDP/packet programı bulunamadı"
+    echo "Loaded eBPF Programs:"
+    bpftool prog list 2>/dev/null | grep -E "(xdp|packet)" || echo "XDP/packet program not found"
     
     echo ""
-    echo "eBPF Haritaları:"
-    bpftool map list 2>/dev/null | grep -E "(packet|hash)" || echo "packet_count haritası bulunamadı"
+    echo "eBPF Maps:"
+    bpftool map list 2>/dev/null | grep -E "(packet|hash)" || echo "packet_count map not found"
     
     echo ""
     echo "================================"
@@ -110,8 +110,8 @@ show_ebpf_info() {
 # Function to cleanup on exit
 cleanup() {
     echo ""
-    echo "$(show_time) Monitör durduruluyor..."
-    show_status "success" "Monitör temiz bir şekilde kapatıldı"
+    echo "$(show_time) Monitor shutting down..."
+    show_status "success" "Monitor closed cleanly"
     exit 0
 }
 
@@ -123,10 +123,10 @@ show_ebpf_info
 
 # Check if any XDP programs are loaded
 if ! bpftool prog list 2>/dev/null | grep -q xdp; then
-    show_status "warning" "XDP programı bulunamadı"
-    show_status "info" "Önce Go uygulamasını çalıştırın: ./packet-counter"
+    show_status "warning" "XDP program not found"
+    show_status "info" "First run the Go application: ./packet-counter"
     echo ""
-    echo "$(show_time) XDP programı yüklenene kadar bekleniyor..."
+    echo "$(show_time) Waiting for XDP program to load..."
     
     # Wait for XDP program to be loaded
     while ! bpftool prog list 2>/dev/null | grep -q xdp; do
@@ -134,13 +134,13 @@ if ! bpftool prog list 2>/dev/null | grep -q xdp; then
         printf "."
     done
     echo ""
-    show_status "success" "XDP programı tespit edildi!"
+    show_status "success" "XDP program detected!"
     echo ""
 fi
 
 # Start monitoring
-show_status "info" "Paket sayacı monitörü başlatıldı"
-show_status "info" "Çıkmak için Ctrl+C kullanın"
+show_status "info" "Packet counter monitor started"
+show_status "info" "Press Ctrl+C to exit"
 echo ""
 
 monitor_packets

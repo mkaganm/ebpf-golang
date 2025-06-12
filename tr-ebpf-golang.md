@@ -1,55 +1,55 @@
-# Go (Golang) ve eBPF ile Modern Linux Gözlemi: Detaylı Bir Rehber
+# Modern Linux Observability with Go (Golang) and eBPF: A Detailed Guide
 
-## Giriş
+## Introduction
 
-Modern bulut altyapılarında, mikroservis mimarilerinde ve yüksek performanslı sistemlerde, sistem gözlemi ve ağ trafiği analizi kritik öneme sahiptir. Linux çekirdeğinin sunduğu eBPF (extended Berkeley Packet Filter) teknolojisi, sistemin derinliklerine inmeden, güvenli ve esnek bir şekilde gözlemleme ve analiz yapmamıza olanak tanır. Go (Golang) ise sistem programlama ve ağ uygulamaları için popüler, hızlı ve verimli bir dildir. Bu yazıda, Go ile eBPF’in nasıl entegre edileceğini, pratik örneklerle ve detaylı açıklamalarla ele alacağız. Ayrıca, gerçek dünyadan kullanım senaryoları, performans ipuçları ve ileri düzey eBPF tekniklerine de değineceğiz.
-
----
-
-## 1. eBPF Nedir?
-
-eBPF, Linux çekirdeğinde çalışan, güvenli ve yüksek performanslı mini programlar yazmamıza olanak tanıyan bir teknolojidir. eBPF programları, kernel’a yüklenir ve ağ paketleri, sistem çağrıları, tracepoint’ler gibi çeşitli olayları gözlemleyebilir veya manipüle edebilir. eBPF, klasik Berkeley Packet Filter’ın (BPF) modern ve genişletilmiş halidir.
-
-### eBPF’in Temel Özellikleri
-- **Performans:** Kernel-space’te çalıştığı için minimum overhead ile veri toplanır.
-- **Güvenlik:** eBPF programları kernel tarafından doğrulanır, sistem kararlılığını bozmaz. Programlar yüklenmeden önce bir verifier tarafından analiz edilir.
-- **Esneklik:** Ağ trafiği izleme, sistem çağrısı takibi, performans ölçümü, güvenlik, hata ayıklama ve daha fazlası için kullanılabilir.
-- **Dinamiklik:** Çalışan bir sisteme, çekirdeği yeniden derlemeden yeni eBPF programları yüklenebilir.
-- **Map ve Event Desteği:** Kullanıcı alanı ile kernel arasında veri paylaşımı için map’ler ve event’ler kullanılabilir.
-
-### Kullanım Alanları
-- Ağ paketlerini izleme ve filtreleme (firewall, DDoS koruması, trafik analizi)
-- Sistem çağrısı (syscall) takibi (güvenlik, audit, performans)
-- Performans ve latency ölçümleri (profiling, tracing, monitoring)
-- Güvenlik ve saldırı tespiti (IDS/IPS, sandboxing)
-- Dinamik gözlemleme ve hata ayıklama (debugging, observability)
-
-#### eBPF’in Linux Ekosistemindeki Yeri
-- **XDP (eXpress Data Path):** Ağ paketlerini kernel’in en erken aşamasında işlemek için kullanılır.
-- **tc (Traffic Control):** Ağ trafiğini şekillendirmek ve filtrelemek için eBPF programları kullanılabilir.
-- **kprobes/uprobes/tracepoints:** Kernel ve kullanıcı alanı fonksiyonlarını izlemek için eBPF ile hook’lar eklenebilir.
+In modern cloud infrastructures, microservice architectures, and high-performance systems, system observability and network traffic analysis are critically important. The eBPF (extended Berkeley Packet Filter) technology provided by the Linux kernel allows us to observe and analyze the system securely and flexibly without delving deep into the kernel. Go (Golang), on the other hand, is a popular, fast, and efficient language for system programming and network applications. In this article, we will explore how to integrate eBPF with Go, with practical examples and detailed explanations. Additionally, we will cover real-world use cases, performance tips, and advanced eBPF techniques.
 
 ---
 
-## 2. Go ile eBPF Kullanımı
+## 1. What is eBPF?
 
-Go, kullanıcı alanında (user space) eBPF programlarını yüklemek, yönetmek ve verileri okumak için idealdir. Kernel tarafında çalışan eBPF programları ise genellikle C dilinde yazılır. Go ile eBPF’in entegrasyonu için en popüler kütüphane [Cilium eBPF](https://github.com/cilium/ebpf)’dir. Bu kütüphane, eBPF objelerini yükleme, map’lerle çalışma, event dinleme ve hook’lara attach etme gibi işlemleri kolaylaştırır.
+eBPF is a technology that allows us to write secure and high-performance mini-programs running in the Linux kernel. eBPF programs are loaded into the kernel and can observe or manipulate various events such as network packets, system calls, and tracepoints. eBPF is the modern and extended version of the classic Berkeley Packet Filter (BPF).
 
-### Gerekli Araçlar ve Kurulum
-- **Linux 4.8+ çekirdeği:** eBPF desteği için gereklidir. Daha yeni çekirdeklerde daha fazla eBPF özelliği bulunur.
+### Key Features of eBPF
+- **Performance:** Data is collected with minimal overhead as it operates in kernel-space.
+- **Security:** eBPF programs are verified by the kernel and do not compromise system stability. Programs are analyzed by a verifier before being loaded.
+- **Flexibility:** It can be used for network traffic monitoring, system call tracking, performance measurement, security, debugging, and more.
+- **Dynamism:** New eBPF programs can be loaded into a running system without recompiling the kernel.
+- **Map and Event Support:** Maps and events are used for data sharing between user space and the kernel.
+
+### Use Cases
+- Monitoring and filtering network packets (firewall, DDoS protection, traffic analysis)
+- Tracking system calls (security, auditing, performance)
+- Measuring performance and latency (profiling, tracing, monitoring)
+- Security and attack detection (IDS/IPS, sandboxing)
+- Dynamic observability and debugging
+
+#### eBPF's Role in the Linux Ecosystem
+- **XDP (eXpress Data Path):** Used to process network packets at the earliest stage in the kernel.
+- **tc (Traffic Control):** eBPF programs can be used to shape and filter network traffic.
+- **kprobes/uprobes/tracepoints:** Hooks can be added with eBPF to monitor kernel and user-space functions.
+
+---
+
+## 2. Using eBPF with Go
+
+Go is ideal for loading, managing, and reading data from eBPF programs in user space. eBPF programs running on the kernel side are typically written in C. The most popular library for integrating eBPF with Go is [Cilium eBPF](https://github.com/cilium/ebpf). This library simplifies operations such as loading eBPF objects, working with maps, listening to events, and attaching hooks.
+
+### Required Tools and Setup
+- **Linux kernel 4.8+:** Required for eBPF support. Newer kernels offer more eBPF features.
 - **Go:** https://golang.org/
-- **Cilium eBPF Go paketi:** https://github.com/cilium/ebpf
-- **LLVM/Clang:** eBPF bytecode derlemek için gereklidir.
-- **bpftool:** eBPF objelerini incelemek ve yönetmek için kullanışlı bir araçtır.
+- **Cilium eBPF Go package:** https://github.com/cilium/ebpf
+- **LLVM/Clang:** Required for compiling eBPF bytecode.
+- **bpftool:** A handy tool for inspecting and managing eBPF objects.
 
-Kurulum (PowerShell):
+Setup (PowerShell):
 
 ```powershell
 go install github.com/cilium/ebpf/cmd/bpf2go@latest
 go get github.com/cilium/ebpf
 ```
 
-Ek olarak, Linux’ta aşağıdaki paketler de faydalı olabilir:
+Additionally, the following packages may be useful on Linux:
 
 ```bash
 sudo apt-get install clang llvm libelf-dev gcc make bpftool linux-headers-$(uname -r)
@@ -57,26 +57,26 @@ sudo apt-get install clang llvm libelf-dev gcc make bpftool linux-headers-$(unam
 
 ---
 
-## 3. eBPF Programlarının Temelleri
+## 3. Basics of eBPF Programs
 
-eBPF programları, kernel’in belirli noktalarına (hook) yüklenir ve burada çalışır. Programlar, C dilinde yazılır ve LLVM/Clang ile eBPF bytecode’a derlenir. Kullanıcı alanında ise Go ile bu programlar yüklenir, map’ler üzerinden veri okunur/yazılır ve event’ler dinlenir.
+eBPF programs are loaded at specific points (hooks) in the kernel and run there. Programs are written in C and compiled to eBPF bytecode using LLVM/Clang. In user space, these programs are loaded with Go, data is read/written through maps, and events are listened to.
 
-### eBPF Program Tipleri
-- **XDP:** Ağ paketlerini kernel’in en erken aşamasında işler.
-- **Socket Filter:** Belirli bir soket üzerinden geçen paketleri filtreler.
-- **Kprobe/Uprobe:** Kernel veya kullanıcı alanı fonksiyonlarını izler.
-- **Tracepoint:** Kernel event’lerini izler.
-- **Cgroup/Sched:** Cgroup ve scheduler event’lerini izler.
+### eBPF Program Types
+- **XDP:** Processes network packets at the earliest stage in the kernel.
+- **Socket Filter:** Filters packets passing through a specific socket.
+- **Kprobe/Uprobe:** Monitors kernel or user-space functions.
+- **Tracepoint:** Monitors kernel events.
+- **Cgroup/Sched:** Monitors cgroup and scheduler events.
 
-### Map’ler ve Event’ler
-- **Map:** Kernel ve kullanıcı alanı arasında veri paylaşımı sağlar. Array, hash, perf event gibi farklı tipleri vardır.
-- **Perf Event:** Kernel’den kullanıcı alanına event göndermek için kullanılır.
+### Maps and Events
+- **Map:** Provides data sharing between the kernel and user space. There are different types such as array, hash, and perf event.
+- **Perf Event:** Used to send events from the kernel to the user space.
 
 ---
 
-## 4. Basit Bir eBPF Programı: Ağ Paketlerini Saymak
+## 4. A Simple eBPF Program: Counting Network Packets
 
-### 4.1. eBPF Programı (C ile Yazılır)
+### 4.1. eBPF Program (Written in C)
 
 `packet_count.c`:
 
@@ -104,17 +104,17 @@ int count_packets(struct xdp_md *ctx) {
 char _license[] SEC("license") = "GPL";
 ```
 
-Bu program, geçen her paketi sayar ve bir map’te saklar. XDP ile kernel’in en erken aşamasında çalışır, bu da minimum gecikme ve yüksek performans sağlar.
+This program counts every passing packet and stores it in a map. It works at the earliest stage of the kernel with XDP, providing minimal latency and high performance.
 
-### 4.2. Go ile eBPF Programını Yüklemek ve Sonuçları Okumak
+### 4.2. Loading the eBPF Program with Go and Reading Results
 
-`bpf2go` ile Go binding’leri oluştur:
+Generate Go bindings with `bpf2go`:
 
 ```powershell
 bpf2go -cc clang.exe PacketCount packet_count.c -- -I"C:\path\to\linux-headers\include"
 ```
 
-Go kodu ile eBPF programını yükle ve sayaç değerini oku:
+Load the eBPF program with Go and read the counter value:
 
 ```go
 package main
@@ -129,62 +129,62 @@ import (
 )
 
 func main() {
-    // eBPF objesini yükle
+    // Load the eBPF object
     objs := PacketCountObjects{}
     if err := LoadPacketCountObjects(&objs, nil); err != nil {
         panic(err)
     }
     defer objs.Close()
 
-    // XDP hook’una attach et
+    // Attach to the XDP hook
     l, err := link.AttachXDP(link.XDPOptions{
         Program:   objs.CountPackets,
-        Interface: 2, // Ağ arayüzü index’i (ör: eth0 için 2)
+        Interface: 2, // Network interface index (e.g., 2 for eth0)
     })
     if err != nil {
         panic(err)
     }
     defer l.Close()
 
-    // Ctrl+C ile çıkış
+    // Exit on Ctrl+C
     sig := make(chan os.Signal, 1)
     signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
-    fmt.Println("Paketler sayılıyor... Çıkmak için Ctrl+C")
+    fmt.Println("Counting packets... Press Ctrl+C to exit")
     <-sig
 
-    // Sayaç değerini oku
+    // Read the counter value
     var key uint32
     var value uint64
     if err := objs.PacketCount.Lookup(&key, &value); err != nil {
         panic(err)
     }
-    fmt.Printf("Toplam paket: %d\n", value)
+    fmt.Printf("Total packets: %d\n", value)
 }
 ```
 
-#### Kodun Açıklaması
-- `PacketCountObjects` ve `LoadPacketCountObjects` fonksiyonları, bpf2go tarafından otomatik üretilir.
-- `link.AttachXDP` ile eBPF programı belirli bir ağ arayüzüne yüklenir.
-- Map üzerinden sayaç değeri okunur.
+#### Code Explanation
+- `PacketCountObjects` and `LoadPacketCountObjects` functions are automatically generated by bpf2go.
+- The eBPF program is loaded to a specific network interface using `link.AttachXDP`.
+- The counter value is read from the map.
 
-#### Dikkat Edilmesi Gerekenler
-- Ağ arayüzü index’i doğru verilmelidir. `ip link` komutu ile arayüz index’lerini görebilirsiniz.
-- eBPF programı yüklenirken root yetkisi gereklidir.
-- Kernel ve Go tarafında kullanılan map tanımları birebir uyumlu olmalıdır.
+#### Important Notes
+- The network interface index must be specified correctly. You can view the interface indices with the `ip link` command.
+- Root privileges are required to load the eBPF program.
+- The map definitions used in the kernel and Go sides must match exactly.
 
 ---
 
-## 5. C Kodu Yazmadan eBPF Kullanmak Mümkün mü?
+## 5. Is it Possible to Use eBPF Without Writing C Code?
 
-Çoğu durumda, eBPF programları kernel tarafında C dilinde yazılır. Çünkü çekirdek ile doğrudan etkileşim ve derleyici (LLVM/Clang) gereklidir. Go ile doğrudan eBPF bytecode yazmak veya derlemek mümkün değildir. Ancak:
+In most cases, eBPF programs are written in C on the kernel side. This is because direct interaction with the kernel and a compiler (LLVM/Clang) are required. It is not possible to write or compile eBPF bytecode directly with Go. However:
 
-- Go ile sadece kullanıcı alanı işlemlerini (yükleme, veri okuma, event dinleme) yapabilirsin.
-- bpftrace veya bcc gibi araçlarla, C kodu yazmadan yüksek seviyeli eBPF scriptleri yazabilirsin, fakat bunlar Go ile entegre çalışmaz.
-- Rust gibi dillerde eBPF yazmak için projeler (ör. aya) vardır, fakat Go için native bir çözüm yoktur.
+- You can only perform user-space operations (loading, data reading, event listening) with Go.
+- With tools like bpftrace or bcc, you can write high-level eBPF scripts without writing C code, but these do not work in integration with Go.
+- There are projects in other languages like Rust (e.g., aya) for writing eBPF, but there is no native solution for Go.
 
-### bpftrace ile Yüksek Seviyeli eBPF
+### High-Level eBPF with bpftrace
 
-bpftrace, eBPF programlarını daha yüksek seviyede, C benzeri bir DSL ile yazmanıza olanak tanır. Örneğin:
+bpftrace allows you to write eBPF programs at a higher level, with a C-like DSL. For example:
 
 ```bpftrace
 kprobe:do_sys_open {
@@ -192,16 +192,16 @@ kprobe:do_sys_open {
 }
 ```
 
-Bu script, her dosya açıldığında işlem adını ve dosya adını yazdırır. Ancak, bpftrace scriptlerini Go ile doğrudan entegre etmek mümkün değildir.
+This script prints the process name and file name every time a file is opened. However, it is not possible to directly integrate bpftrace scripts with Go.
 
 ---
 
-## 6. Gerçek Hayatta eBPF Kullanım Senaryoları
+## 6. Real-World eBPF Use Cases
 
-### 6.1. Ağ Güvenliği ve İzleme
-- **Cilium:** Kubernetes ağ güvenliği ve gözlemi için eBPF kullanır. Ağ politikalarını kernel seviyesinde uygular.
-- **Katran:** DDoS saldırılarını tespit etmek ve engellemek için XDP tabanlı eBPF programları kullanılır.
-- **Örnek Kod:** Basit bir XDP eBPF programı ile gelen paketleri saymak:
+### 6.1. Network Security and Monitoring
+- **Cilium:** Uses eBPF for network security and observability in Kubernetes. It enforces network policies at the kernel level.
+- **Katran:** Uses XDP-based eBPF programs to detect and mitigate DDoS attacks.
+- **Sample Code:** A simple XDP eBPF program to count incoming packets:
 
 ```c
 #include <linux/bpf.h>
@@ -229,10 +229,10 @@ char _license[] SEC("license") = "GPL";
 
 ---
 
-### 6.2. Güvenlik ve Olay Tespiti
-- **Falco:** Güvenlik olaylarını tespit etmek için eBPF ile sistem çağrılarını izler.
-- **Tracee:** Aqua Security tarafından geliştirilen, eBPF tabanlı bir runtime güvenlik ve izleme aracıdır.
-- **Örnek Kod:** Bir dosya açma sistem çağrısını izleyen bpftrace scripti:
+### 6.2. Security and Event Detection
+- **Falco:** Monitors system calls with eBPF to detect security events.
+- **Tracee:** A runtime security and monitoring tool developed by Aqua Security, based on eBPF.
+- **Sample Code:** A bpftrace script to monitor a file open system call:
 
 ```bpftrace
 kprobe:do_sys_open {
@@ -242,10 +242,10 @@ kprobe:do_sys_open {
 
 ---
 
-### 6.3. Performans ve Gözlemleme
-- **bcc, bpftrace:** Dinamik gözlemleme ve debugging araçlarıdır. Kernel ve uygulama seviyesinde detaylı analizler yapılabilir.
-- **perf, sysdig:** eBPF ile sistem performansını ve olaylarını analiz eder.
-- **Örnek Kod:** Bir fonksiyonun ne kadar sürdüğünü ölçen bpftrace scripti:
+### 6.3. Performance and Observability
+- **bcc, bpftrace:** Tools for dynamic observability and debugging. They provide detailed analysis at the kernel and application levels.
+- **perf, sysdig:** Analyze system performance and events with eBPF.
+- **Sample Code:** A bpftrace script to measure the duration of a function:
 
 ```bpftrace
 uprobe:/usr/bin/myapp:myfunc
@@ -254,72 +254,72 @@ uprobe:/usr/bin/myapp:myfunc
 }
 uretprobe:/usr/bin/myapp:myfunc
 {
-    printf("Süre: %d ns\n", nsecs - @start[tid]);
+    printf("Duration: %d ns\n", nsecs - @start[tid]);
     delete(@start[tid]);
 }
 ```
 
 ---
 
-### 6.4. Diğer Kullanım Alanları
-- **Sandboxing:** Uygulamaları izole etmek ve güvenliğini artırmak için eBPF kullanılabilir.
-- **Custom Monitoring:** Kendi özel gözlemleme ve metrik toplama araçlarınızı geliştirebilirsiniz.
-- **Örnek Kod:** Go ile eBPF map’ten sayaç okuma:
+### 6.4. Other Use Cases
+- **Sandboxing:** eBPF can be used to isolate applications and enhance their security.
+- **Custom Monitoring:** You can develop your own custom observability and metric collection tools.
+- **Sample Code:** Reading a counter from an eBPF map with Go:
 
 ```go
 var key uint32 = 0
 var value uint64
 if err := objs.PacketCount.Lookup(&key, &value); err == nil {
-    fmt.Printf("Toplam paket: %d\n", value)
+    fmt.Printf("Total packets: %d\n", value)
 }
 ```
 
 ---
 
-## 7. Performans, Güvenlik ve İleri Teknikler
+## 7. Performance, Security, and Advanced Techniques
 
-### 7.1. Performans İpuçları
-- eBPF programları mümkün olduğunca kısa ve hızlı olmalıdır. Kernel verifier, programların karmaşıklığını sınırlar.
-- Map erişimlerini minimize edin.
-- XDP ile paket işleme, geleneksel iptables veya netfilter’a göre çok daha hızlıdır.
+### 7.1. Performance Tips
+- eBPF programs should be as short and fast as possible. The kernel verifier limits the complexity of the programs.
+- Minimize map access.
+- Processing packets with XDP is much faster than traditional iptables or netfilter.
 
-### 7.2. Güvenlik
-- eBPF programları yüklenmeden önce kernel verifier tarafından analiz edilir. Sonsuz döngü, bellek taşması gibi hatalara izin verilmez.
-- eBPF programları sadece izin verilen alanlara erişebilir.
+### 7.2. Security
+- eBPF programs are analyzed by the kernel verifier before being loaded. Errors like infinite loops or memory overflows are not allowed.
+- eBPF programs can only access permitted areas.
 
-### 7.3. İleri Teknikler
-- **Tail Calls:** eBPF programları arasında zincirleme çağrılar yapılabilir.
-- **Helper Fonksiyonlar:** Kernel’in sunduğu yardımcı fonksiyonlar ile gelişmiş işlemler yapılabilir.
-- **Ring Buffer:** Yüksek performanslı event aktarımı için kullanılabilir.
+### 7.3. Advanced Techniques
+- **Tail Calls:** Chained calls between eBPF programs are possible.
+- **Helper Functions:** Advanced operations can be performed with the kernel's helper functions.
+- **Ring Buffer:** Can be used for high-performance event transfer.
 
 ---
 
-## 8. Kaynaklar ve İleri Okuma
+## 8. Resources and Further Reading
 
-- [Cilium eBPF Go Kütüphanesi](https://github.com/cilium/ebpf)
+- [Cilium eBPF Go Library](https://github.com/cilium/ebpf)
 - [eBPF.io](https://ebpf.io/)
 - [bpftrace](https://github.com/iovisor/bpftrace)
 - [Linux eBPF Documentation](https://www.kernel.org/doc/html/latest/bpf/index.html)
 - [Awesome eBPF](https://github.com/zoidbergwill/awesome-ebpf)
-- [Brendan Gregg eBPF Kaynakları](http://www.brendangregg.com/ebpf.html)
+- [Brendan Gregg eBPF Resources](http://www.brendangregg.com/ebpf.html)
 - [Liz Rice: Learning eBPF](https://www.youtube.com/watch?v=Qh5kC6w7g1c)
 
 ---
 
-## Sonuç
+## Conclusion
 
-Go ve eBPF ile modern Linux sistemlerinde yüksek performanslı, güvenli ve esnek gözlemleme araçları geliştirmek mümkündür. eBPF’in gücüyle, sistemin derinliklerine inmeden, kernel seviyesinde veri toplayabilir ve analiz edebilirsiniz. Go ise bu programları kolayca yönetmenizi ve entegre etmenizi sağlar. eBPF ekosistemi hızla büyümekte ve yeni kullanım alanları ortaya çıkmaktadır. Siz de kendi gözlemleme, güvenlik veya performans analiz araçlarınızı geliştirmek için Go ve eBPF’i keşfetmeye başlayabilirsiniz. Sorularınız veya eklemek istedikleriniz için yorum bırakabilirsiniz!
+It is possible to develop high-performance, secure, and flexible observability tools for modern Linux systems with Go and eBPF. With the power of eBPF, you can collect and analyze data at the kernel level without delving deep into the system. Go makes it easy to manage and integrate these programs. The eBPF ecosystem is rapidly growing, and new use cases are emerging. You can start exploring Go and eBPF to develop your own observability, security, or performance analysis tools. Feel free to leave a comment with your questions or contributions!
 
-## Örnek Proje: Go + eBPF ile Paket Sayacı
+## Sample Project: Packet Counter with Go + eBPF
 
-Bu bölümde, yukarıdaki kodların ve açıklamaların tamamı, `ebpf-golang` adlı örnek bir proje üzerinden gösterilmektedir. Proje yapısı:
+In this section, all the code and explanations above are demonstrated through a sample project called `ebpf-golang`. Project structure:
 
-- `ebpf/packet_count.c`: eBPF XDP programı (C)
-- `main.go`: Go ile eBPF programını yükleyen ve sayaç okuyan uygulama
-- `bpftrace-examples/`: bpftrace ile kullanılabilecek örnek scriptler
-- `README.md`: Proje açıklaması ve kullanım talimatları
+- `ebpf/packet_count.c`: eBPF XDP program (C)
+- `main.go`: Application that loads the eBPF program and reads the packet counter with Go
+- `bpftrace-examples/`: Example scripts that can be used with bpftrace
+- `README.md`: Project description and usage instructions
 
-### 1. eBPF Programı (C)
+### 1. eBPF Program (C)
 
 `ebpf/packet_count.c`:
 ```c
@@ -329,7 +329,7 @@ Bu bölümde, yukarıdaki kodların ve açıklamaların tamamı, `ebpf-golang` a
 #include <linux/in.h>
 #include "bpf/bpf_helpers.h"
 
-// Paket sayısını tutacak eBPF map
+// Packet count eBPF map
 struct bpf_map_def SEC("maps") packet_count = {
     .type = BPF_MAP_TYPE_ARRAY,
     .key_size = sizeof(__u32),
@@ -337,28 +337,28 @@ struct bpf_map_def SEC("maps") packet_count = {
     .max_entries = 1,
 };
 
-// XDP programı - her paket için çağrılır
+// XDP program - called for each packet
 SEC("xdp")
 int count_packets(struct xdp_md *ctx)
 {
     __u32 key = 0;
     __u64 *count;
     
-    // Map'ten mevcut sayacı al
+    // Get the current counter from the map
     count = bpf_map_lookup_elem(&packet_count, &key);
     if (count) {
-        // Sayacı artır (atomik işlem)
+        // Increment the counter (atomic operation)
         __sync_fetch_and_add(count, 1);
     }
     
-    // Paketi geçir (XDP_PASS)
+    // Pass the packet (XDP_PASS)
     return XDP_PASS;
 }
 
 char _license[] SEC("license") = "GPL";
 ```
 
-### 2. Go ile eBPF Programını Yüklemek ve Sayaç Okumak
+### 2. Loading the eBPF Program and Reading the Counter with Go
 
 `main.go`:
 ```go
@@ -376,40 +376,40 @@ import (
 //go:generate go run github.com/cilium/ebpf/cmd/bpf2go@latest -go-package main packetcount ebpf/packet_count.c -- -I/usr/include -Iebpf
 
 func main() {
-	// eBPF objeleri yükle
+	// Load eBPF objects
 	objs := packetcountObjects{}
 	if err := loadPacketcountObjects(&objs, nil); err != nil {
-		panic(fmt.Sprintf("eBPF objelerini yüklerken hata: %v", err))
+		panic(fmt.Sprintf("Error loading eBPF objects: %v", err))
 	}
 	defer objs.Close()
 
-	// XDP programını ağ arayüzüne bağla
+	// Attach XDP program to the network interface
 	l, err := link.AttachXDP(link.XDPOptions{
 		Program:   objs.CountPackets,
-		Interface: 2, // eth0 genellikle interface 2'dir
+		Interface: 2, // Usually interface 2 for eth0
 	})
 	if err != nil {
-		panic(fmt.Sprintf("XDP bağlarken hata: %v", err))
+		panic(fmt.Sprintf("Error attaching XDP: %v", err))
 	}
 	defer l.Close()
 
-	// SIGINT/SIGTERM bekleme
+	// Wait for SIGINT/SIGTERM
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
-	fmt.Println("Paketler sayılıyor... Çıkmak için Ctrl+C")
+	fmt.Println("Counting packets... Press Ctrl+C to exit")
 	<-sig
 
-	// Son paket sayısını al ve göster
+	// Get and display the final packet count
 	var key uint32 = 0
 	var value uint64
 	if err := objs.PacketCount.Lookup(&key, &value); err != nil {
-		panic(fmt.Sprintf("Map'ten değer okurken hata: %v", err))
+		panic(fmt.Sprintf("Error reading value from map: %v", err))
 	}
-	fmt.Printf("Toplam paket sayısı: %d\n", value)
+	fmt.Printf("Total packet count: %d\n", value)
 }
 ```
 
-### 3. bpftrace Scriptleri
+### 3. bpftrace Scripts
 
 `bpftrace-examples/README.md`:
 ```bpftrace
@@ -423,56 +423,56 @@ uprobe:/usr/bin/myapp:myfunc
 }
 uretprobe:/usr/bin/myapp:myfunc
 {
-    printf("Süre: %d ns\n", nsecs - @start[tid]);
+    printf("Duration: %d ns\n", nsecs - @start[tid]);
     delete(@start[tid]);
 }
 ```
 
-### 4. Kurulum ve Çalıştırma
+### 4. Installation and Running
 
-1. Gerekli araçları kurun: Go, clang, llvm, libelf-dev, bpftool
-2. eBPF programını derleyin ve Go bindinglerini oluşturun:
+1. Install the required tools: Go, clang, llvm, libelf-dev, bpftool
+2. Compile the eBPF program and generate Go bindings:
    ```powershell
    go install github.com/cilium/ebpf/cmd/bpf2go@latest
    bpf2go -cc clang.exe PacketCount ebpf/packet_count.c -- -I"C:/path/to/linux-headers/include"
    ```
-3. Go uygulamasını derleyin:
+3. Build the Go application:
    ```powershell
    go build -o packet-counter main.go
    ```
-4. Uygulamayı çalıştırın (root yetkisi gerekebilir):
+4. Run the application (may require root privileges):
    ```powershell
    .\packet-counter.exe
    ```
 
 ---
 
-Artık blogdaki tüm örnekler ve açıklamalar, bu örnek proje üzerinden gösterilmektedir.
+Now, all the examples and explanations in the blog are demonstrated through this sample project.
 
 ---
 
-## 3. Pratik Örnek: Packet Counter
+## 3. Practical Example: Packet Counter
 
-Bu bölümde, XDP kullanarak ağ paketlerini sayan basit ama etkili bir eBPF uygulaması oluşturacağız. Projemiz hem eBPF kernel kodu hem de Go user-space uygulamasını içerir.
+In this section, we will create a simple yet effective eBPF application that counts network packets using XDP. Our project includes both the eBPF kernel code and the Go user-space application.
 
-### Proje Yapısı
+### Project Structure
 
 ```
 ebpf-golang/
-├── main.go                  # Go kullanıcı alanı uygulaması
+├── main.go                  # Go user-space application
 ├── ebpf/
-│   ├── packet_count.c       # eBPF kernel programı
+│   ├── packet_count.c       # eBPF kernel program
 │   └── bpf/
-│       └── bpf_helpers.h    # eBPF yardımcı fonksiyonları
-├── Dockerfile               # Konteyner yapılandırması
-├── docker-compose.yml       # Kolay dağıtım
-├── go.mod                   # Go bağımlılıkları
-└── README.md               # Proje dokümantasyonu
+│       └── bpf_helpers.h    # eBPF helper functions
+├── Dockerfile               # Container configuration
+├── docker-compose.yml       # Easy deployment
+├── go.mod                   # Go dependencies
+└── README.md               # Project documentation
 ```
 
-### eBPF Kernel Programı (C)
+### eBPF Kernel Program (C)
 
-İlk olarak, XDP kullanarak paketleri sayacak olan eBPF programımızı yazalım:
+First, let's write our eBPF program that will count packets using XDP:
 
 ```c
 // ebpf/packet_count.c
@@ -482,7 +482,7 @@ ebpf-golang/
 #include <linux/in.h>
 #include "bpf/bpf_helpers.h"
 
-// Paket sayısını tutacak eBPF map
+// Packet count eBPF map
 struct bpf_map_def SEC("maps") packet_count = {
     .type = BPF_MAP_TYPE_ARRAY,
     .key_size = sizeof(__u32),
@@ -490,30 +490,30 @@ struct bpf_map_def SEC("maps") packet_count = {
     .max_entries = 1,
 };
 
-// XDP programı - her paket için çağrılır
+// XDP program - called for each packet
 SEC("xdp")
 int count_packets(struct xdp_md *ctx)
 {
     __u32 key = 0;
     __u64 *count;
     
-    // Map'ten mevcut sayacı al
+    // Get the current counter from the map
     count = bpf_map_lookup_elem(&packet_count, &key);
     if (count) {
-        // Sayacı artır (atomik işlem)
+        // Increment the counter (atomic operation)
         __sync_fetch_and_add(count, 1);
     }
     
-    // Paketi geçir (XDP_PASS)
+    // Pass the packet (XDP_PASS)
     return XDP_PASS;
 }
 
 char _license[] SEC("license") = "GPL";
 ```
 
-### Go User-Space Uygulaması
+### Go User-Space Application
 
-Şimdi eBPF programını yükleyecek ve verileri okuyacak Go uygulamasını yazalım:
+Now let's write the Go application that will load the eBPF program and read the packet count:
 
 ```go
 // main.go
@@ -531,42 +531,42 @@ import (
 //go:generate go run github.com/cilium/ebpf/cmd/bpf2go@latest -go-package main packetcount ebpf/packet_count.c -- -I/usr/include -Iebpf
 
 func main() {
-	// eBPF objeleri yükle
+	// Load eBPF objects
 	objs := packetcountObjects{}
 	if err := loadPacketcountObjects(&objs, nil); err != nil {
-		panic(fmt.Sprintf("eBPF objelerini yüklerken hata: %v", err))
+		panic(fmt.Sprintf("Error loading eBPF objects: %v", err))
 	}
 	defer objs.Close()
 
-	// XDP programını ağ arayüzüne bağla
+	// Attach XDP program to the network interface
 	l, err := link.AttachXDP(link.XDPOptions{
 		Program:   objs.CountPackets,
-		Interface: 2, // eth0 genellikle interface 2'dir
+		Interface: 2, // Usually interface 2 for eth0
 	})
 	if err != nil {
-		panic(fmt.Sprintf("XDP bağlarken hata: %v", err))
+		panic(fmt.Sprintf("Error attaching XDP: %v", err))
 	}
 	defer l.Close()
 
-	// SIGINT/SIGTERM bekleme
+	// Wait for SIGINT/SIGTERM
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
-	fmt.Println("Paketler sayılıyor... Çıkmak için Ctrl+C")
+	fmt.Println("Counting packets... Press Ctrl+C to exit")
 	<-sig
 
-	// Son paket sayısını al ve göster
+	// Get and display the final packet count
 	var key uint32 = 0
 	var value uint64
 	if err := objs.PacketCount.Lookup(&key, &value); err != nil {
-		panic(fmt.Sprintf("Map'ten değer okurken hata: %v", err))
+		panic(fmt.Sprintf("Error reading value from map: %v", err))
 	}
-	fmt.Printf("Toplam paket sayısı: %d\n", value)
+	fmt.Printf("Total packet count: %d\n", value)
 }
 ```
 
-### Docker ile Dağıtım
+### Docker Deployment
 
-Projemizi kolayca dağıtmak için Docker kullanıyoruz:
+We use Docker for easy deployment:
 
 ```dockerfile
 # Dockerfile
@@ -574,7 +574,7 @@ FROM golang:1.24-bullseye as builder
 
 WORKDIR /app
 
-# eBPF geliştirme araçlarını yükle
+# Install eBPF development tools
 RUN apt-get update && \
     apt-get install -y clang llvm libelf-dev gcc make bpftool linux-libc-dev && \
     ln -sfT /usr/include/x86_64-linux-gnu/asm /usr/include/asm
@@ -584,7 +584,7 @@ RUN go mod download
 
 COPY . .
 
-# bpf2go ile Go bindings üret ve derle
+# Generate Go bindings with bpf2go and build
 RUN go install github.com/cilium/ebpf/cmd/bpf2go@latest && \
     $(go env GOPATH)/bin/bpf2go -go-package main packetcount ebpf/packet_count.c -- -I/usr/include -I./ebpf && \
     go build -o packet-counter .
@@ -598,9 +598,9 @@ COPY --from=builder /app/packet-counter ./
 CMD ["/app/packet-counter"]
 ```
 
-### Çalıştırma ve Test
+### Running and Testing
 
-Uygulamayı Docker Compose ile çalıştırabilirsiniz:
+You can run the application with Docker Compose:
 
 ```yaml
 # docker-compose.yml
@@ -615,30 +615,30 @@ services:
       - SYS_ADMIN
 ```
 
-Çalıştırma:
+Running:
 ```bash
 docker-compose up --build
 ```
 
-### Başarılı Çalışma Sonucu
+### Successful Run Output
 
-Uygulama başarıyla çalıştığında şu çıktıyı görürsünüz:
+When the application runs successfully, you will see this output:
 ```
-Paketler sayılıyor... Çıkmak için Ctrl+C
+Counting packets... Press Ctrl+C to exit
 ```
 
-Bu, eBPF programının kernel'a yüklendiğini, XDP hook'una bağlandığını ve ağ trafiğini dinlemeye başladığını gösterir.
+This indicates that the eBPF program has been loaded into the kernel, attached to the XDP hook, and started listening to network traffic.
 
 ---
 
-## 4. İleri Düzey eBPF Teknikleri
+## 4. Advanced eBPF Techniques
 
-### BPF Maps Türleri ve Kullanımları
+### BPF Maps Types and Usages
 
-eBPF, farklı türlerde map'ler sunar:
+eBPF offers different types of maps:
 
 ```c
-// Hash map - anahtar-değer çiftleri için
+// Hash map - for key-value pairs
 struct bpf_map_def SEC("maps") connection_tracker = {
     .type = BPF_MAP_TYPE_HASH,
     .key_size = sizeof(struct flow_key),
@@ -646,7 +646,7 @@ struct bpf_map_def SEC("maps") connection_tracker = {
     .max_entries = 10000,
 };
 
-// Per-CPU array - CPU başına ayrı veriler
+// Per-CPU array - separate data for each CPU
 struct bpf_map_def SEC("maps") cpu_stats = {
     .type = BPF_MAP_TYPE_PERCPU_ARRAY,
     .key_size = sizeof(__u32),
@@ -654,7 +654,7 @@ struct bpf_map_def SEC("maps") cpu_stats = {
     .max_entries = 256,
 };
 
-// Ring buffer - user space'e event gönderimi
+// Ring buffer - for event sending to user space
 struct bpf_map_def SEC("maps") events = {
     .type = BPF_MAP_TYPE_RINGBUF,
     .max_entries = 256 * 1024,
@@ -664,7 +664,7 @@ struct bpf_map_def SEC("maps") events = {
 ### Event-Driven Monitoring
 
 ```go
-// Go tarafında event dinleme
+// Go side event listening
 func monitorEvents(eventMap *ebpf.Map) {
     reader, err := ringbuf.NewReader(eventMap)
     if err != nil {
@@ -678,7 +678,7 @@ func monitorEvents(eventMap *ebpf.Map) {
             continue
         }
         
-        // Event'i parse et ve işle
+        // Parse and process the event
         processNetworkEvent(record.RawSample)
     }
 }
@@ -687,32 +687,32 @@ func monitorEvents(eventMap *ebpf.Map) {
 ### Performance Optimization
 
 ```c
-// Inline fonksiyonlar - performans için kritik
+// Inline functions - critical for performance
 static __always_inline int process_packet(struct xdp_md *ctx)
 {
     void *data = (void *)(long)ctx->data;
     void *data_end = (void *)(long)ctx->data_end;
     
-    // Bounds checking - verifier için gerekli
+    // Bounds checking - required for verifier
     if (data + sizeof(struct ethhdr) > data_end)
         return XDP_DROP;
     
-    // Paket işleme...
+    // Packet processing...
     return XDP_PASS;
 }
 ```
 
 ---
 
-## 5. Gerçek Dünya Kullanım Senaryoları
+## 5. Real World Use Cases
 
-### 1. DDoS Koruma Sistemi
+### 1. DDoS Protection System
 
 ```c
 SEC("xdp")
 int ddos_protection(struct xdp_md *ctx)
 {
-    // IP başına rate limiting
+    // Rate limiting per IP
     struct iphdr *ip = get_ip_header(ctx);
     if (!ip) return XDP_PASS;
     
@@ -720,10 +720,10 @@ int ddos_protection(struct xdp_md *ctx)
     __u64 *packet_count = bpf_map_lookup_elem(&rate_limit_map, &src_ip);
     
     if (packet_count && *packet_count > RATE_LIMIT_THRESHOLD) {
-        return XDP_DROP; // Paketi düşür
+        return XDP_DROP; // Drop the packet
     }
     
-    // Rate counter'ı güncelle
+    // Update the rate counter
     update_rate_counter(&src_ip);
     return XDP_PASS;
 }
@@ -739,11 +739,11 @@ int trace_http_request(struct pt_regs *ctx)
     event.timestamp = bpf_ktime_get_ns();
     event.pid = bpf_get_current_pid_tgid() >> 32;
     
-    // HTTP request bilgilerini topla
+    // Collect HTTP request information
     bpf_probe_read_user_str(event.url, sizeof(event.url), 
                            (void *)PT_REGS_PARM1(ctx));
     
-    // User space'e event gönder
+    // Send the user space event
     bpf_ringbuf_output(&events, &event, sizeof(event), 0);
     return 0;
 }
@@ -757,13 +757,13 @@ int network_security_monitor(struct __sk_buff *skb)
 {
     struct security_event event = {};
     
-    // Şüpheli ağ aktivitesi tespiti
+    // Detection of suspicious network activity
     if (detect_suspicious_pattern(skb)) {
         event.alert_type = SUSPICIOUS_TRAFFIC;
         event.src_ip = get_src_ip(skb);
         event.dst_port = get_dst_port(skb);
         
-        // Security event'i log'la
+        // Log the security event
         bpf_ringbuf_output(&security_events, &event, sizeof(event), 0);
     }
     
@@ -773,21 +773,21 @@ int network_security_monitor(struct __sk_buff *skb)
 
 ---
 
-## 6. Troubleshooting ve Debug
+## 6. Troubleshooting and Debug
 
 ### eBPF Program Debug
 
 ```bash
-# eBPF programını yükleme durumunu kontrol et
+# Check the eBPF program load status
 bpftool prog list
 
-# Map içeriğini görüntüle
+# View the map content
 bpftool map dump id <map_id>
 
-# Program kaynak kodunu görüntüle
+# View the program source code
 bpftool prog dump xlated id <prog_id>
 
-# Verifier log'larını incele
+# Check the verifier logs
 echo 1 > /proc/sys/kernel/bpf_stats_enabled
 bpftool prog show id <prog_id> --verbose
 ```
@@ -795,22 +795,22 @@ bpftool prog show id <prog_id> --verbose
 ### Go Debug
 
 ```go
-// Debug modunda daha detaylı hata mesajları
+// More detailed error messages in debug mode
 func loadProgram() {
     spec, err := ebpf.LoadCollectionSpec("program.o")
     if err != nil {
-        log.Printf("eBPF spec yükleme hatası: %v", err)
+        log.Printf("Error loading eBPF spec: %v", err)
         return
     }
     
-    // Verifier log'larını etkinleştir
+    // Enable verifier logs
     coll, err := ebpf.NewCollectionWithOptions(spec, ebpf.CollectionOptions{
         Maps: ebpf.MapOptions{
-            PinPath: "/sys/fs/bpf", // Map'leri pin'le
+            PinPath: "/sys/fs/bpf", // Pin the maps
         },
     })
     if err != nil {
-        log.Printf("Collection oluşturma hatası: %v", err)
+        log.Printf("Error creating collection: %v", err)
         return
     }
 }
@@ -818,29 +818,29 @@ func loadProgram() {
 
 ### Common Issues
 
-1. **Permission Denied:** `CAP_SYS_ADMIN` yetkisi gerekli
-2. **Verifier Errors:** Bounds checking eksik veya infinite loop
-3. **Map Not Found:** bpf2go ile generate edilen isimler farklı olabilir
-4. **Kernel Compatibility:** Eski kernellerde tüm eBPF özellikleri mevcut değil
+1. **Permission Denied:** Requires `CAP_SYS_ADMIN` privilege
+2. **Verifier Errors:** Missing bounds checking or infinite loop
+3. **Map Not Found:** Names generated by bpf2go may differ
+4. **Kernel Compatibility:** Not all eBPF features are available in older kernels
 
 ---
 
-## 7. Performance İpuçları
+## 7. Performance Tips
 
 ### eBPF Program Optimization
 
 ```c
-// 1. Inline fonksiyonlar kullan
+// 1. Use inline functions
 static __always_inline bool is_tcp_packet(struct iphdr *ip) {
     return ip->protocol == IPPROTO_TCP;
 }
 
 // 2. Branch prediction hints
 if (__builtin_expect(condition, 1)) {
-    // Muhtemelen doğru olan yol
+    // Likely true path
 }
 
-// 3. Per-CPU maps kullan - locking overhead'i azaltır
+// 3. Use per-CPU maps - reduces locking overhead
 struct bpf_map_def SEC("maps") per_cpu_counters = {
     .type = BPF_MAP_TYPE_PERCPU_ARRAY,
     // ...
@@ -850,12 +850,12 @@ struct bpf_map_def SEC("maps") per_cpu_counters = {
 ### Go Performance
 
 ```go
-// 1. Map batch operations kullan
+// 1. Use map batch operations
 keys := make([]uint32, batchSize)
 values := make([]uint64, batchSize)
 count, err := m.BatchLookup(keys, values, nil)
 
-// 2. Memory pool kullan
+// 2. Use memory pool
 var eventPool = sync.Pool{
     New: func() interface{} {
         return &NetworkEvent{}
@@ -865,10 +865,10 @@ var eventPool = sync.Pool{
 func processEvent() {
     event := eventPool.Get().(*NetworkEvent)
     defer eventPool.Put(event)
-    // event'i işle...
+    // Process the event...
 }
 
-// 3. Goroutine pool kullan
+// 3. Use goroutine pool
 func startWorkers(numWorkers int) {
     for i := 0; i < numWorkers; i++ {
         go worker()
@@ -878,20 +878,20 @@ func startWorkers(numWorkers int) {
 
 ---
 
-## 8. Sonuç
+## 8. Conclusion
 
-eBPF ve Go kombinasyonu, modern sistem gözlemi, ağ güvenliği ve performans izleme için güçlü bir çözüm sunar. Bu yazıda ele aldığımız pratik örnek, gerçek dünyada kullanabileceğiniz bir temel oluşturur. 
+The combination of eBPF and Go offers a powerful solution for modern system observability, network security, and performance monitoring. In this article, we covered a practical example that can serve as a foundation for your real-world applications. 
 
-### Önemli Faydalar:
-- **Yüksek Performans:** Kernel-space'te minimal overhead
-- **Güvenlik:** Verifier ile güvenli kod çalıştırma
-- **Esneklik:** Dinamik program yükleme ve güncelleme
-- **Gözlenebilirlik:** Sistem derinliklerine erişim
+### Key Benefits:
+- **High Performance:** Minimal overhead in kernel-space
+- **Security:** Safe code execution with verifier
+- **Flexibility:** Dynamic program loading and updating
+- **Observability:** Deep access to system internals
 
-### Gelecek Adımlar:
-1. **Cilium/eBPF** dokümantasyonunu inceleyin
-2. **bpftrace** ile quick prototyping yapın
-3. **Katran**, **Falco**, **Pixie** gibi production-ready eBPF projelerini araştırın
-4. Kendi kullanım senaryolarınız için eBPF çözümleri geliştirin
+### Next Steps:
+1. Explore the **Cilium/eBPF** documentation
+2. Experiment with **bpftrace** for quick prototyping
+3. Research production-ready eBPF projects like **Katran**, **Falco**, **Pixie**
+4. Develop eBPF solutions for your own use cases
 
-eBPF ekosistemi hızla gelişiyor ve yeni özellikler ekleniyor. Bu teknolojinin potansiyelini keşfetmek için deneyimleme ve projeler geliştirme en iyi yöntemdir.
+The eBPF ecosystem is rapidly evolving, with new features and capabilities being added. The best way to discover the potential of this technology is to experiment and develop projects using eBPF.

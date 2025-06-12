@@ -19,98 +19,98 @@ help:
 	@echo "  make docker-stop  - Stop Docker container"
 	@echo ""
 	@echo "🧪 Test:"
-	@echo "  make test-traffic - Test trafiği oluştur"
+	@echo "  make test-traffic - Generate test traffic"
 	@echo ""
-	@echo "❓ Yardım:"
-	@echo "  make help         - Bu yardım mesajını göster"
+	@echo "❓ Help:"
+	@echo "  make help         - Show this help message"
 
 # Generate eBPF code and Go bindings
 generate:
-	@echo "🔧 eBPF kodu derleniyor ve Go binding'leri oluşturuluyor..."
+	@echo "🔧 Compiling eBPF code and generating Go bindings..."
 	go generate ./...
-	@echo "✅ Generate işlemi tamamlandı"
+	@echo "✅ Generate completed"
 
 # Build the Go application
 build: generate
-	@echo "🏗️  Go uygulaması derleniyor..."
+	@echo "🏗️  Building Go application..."
 	go build -o packet-counter main.go
-	@echo "✅ Build işlemi tamamlandı: ./packet-counter"
+	@echo "✅ Build completed: ./packet-counter"
 
 # Run the application (requires sudo)
 run: build
-	@echo "🚀 Uygulama çalıştırılıyor (sudo gerekli)..."
-	@echo "💡 Çıkmak için Ctrl+C kullanın"
+	@echo "🚀 Running the application (sudo required)..."
+	@echo "💡 Press Ctrl+C to exit"
 	sudo ./packet-counter
 
 # Clean generated files
 clean:
-	@echo "🧹 Geçici dosyalar temizleniyor..."
+	@echo "🧹 Cleaning up temporary files..."
 	rm -f packet-counter
 	rm -f packet_count_bpfeb.go packet_count_bpfel.go
 	rm -f packet_count_bpfeb.o packet_count_bpfel.o
-	@echo "✅ Temizlik tamamlandı"
+	@echo "✅ Cleanup completed"
 
 # Docker build
 docker-build:
-	@echo "🐳 Docker image'ı oluşturuluyor..."
+	@echo "🐳 Building Docker image..."
 	docker-compose build
-	@echo "✅ Docker build tamamlandı"
+	@echo "✅ Docker build completed"
 
 # Docker run
 docker-run:
-	@echo "🐳 Docker konteynerında çalıştırılıyor..."
-	@echo "💡 Durdurmak için Ctrl+C kullanın"
+	@echo "🐳 Running in Docker container..."
+	@echo "💡 Use Ctrl+C to stop"
 	docker-compose up
 
 # Docker stop
 docker-stop:
-	@echo "🛑 Docker konteyneri durduruluyor..."
+	@echo "🛑 Stopping Docker container..."
 	docker-compose down
-	@echo "✅ Docker konteyneri durduruldu"
+	@echo "✅ Docker container stopped"
 
 # Generate test traffic
 test-traffic:
-	@echo "🧪 Test trafiği oluşturuluyor..."
+	@echo "🧪 Generating test traffic..."
 	@if [ -f test-traffic.sh ]; then \
 		chmod +x test-traffic.sh && ./test-traffic.sh; \
 	else \
-		echo "❌ test-traffic.sh dosyası bulunamadı"; \
+		echo "❌ test-traffic.sh file not found"; \
 	fi
 
 # Install dependencies (Ubuntu/Debian)
 install-deps:
-	@echo "📦 Bağımlılıklar kuruluyor (Ubuntu/Debian)..."
+	@echo "📦 Installing dependencies (Ubuntu/Debian)..."
 	sudo apt update
 	sudo apt install -y golang-go clang llvm libelf-dev bpftool linux-libc-dev
 	go install github.com/cilium/ebpf/cmd/bpf2go@latest
-	@echo "✅ Bağımlılıklar kuruldu"
+	@echo "✅ Dependencies installed"
 
 # Check system requirements
 check:
-	@echo "🔍 Sistem gereksinimleri kontrol ediliyor..."
+	@echo "🔍 Checking system requirements..."
 	@echo ""
-	@echo "Go sürümü:"
-	@go version || echo "❌ Go bulunamadı"
+	@echo "Go version:"
+	@go version || echo "❌ Go not found"
 	@echo ""
-	@echo "Clang sürümü:"
-	@clang --version | head -1 || echo "❌ Clang bulunamadı"
+	@echo "Clang version:"
+	@clang --version | head -1 || echo "❌ Clang not found"
 	@echo ""
-	@echo "LLVM sürümü:"
-	@llc --version | head -1 || echo "❌ LLVM bulunamadı"
+	@echo "LLVM version:"
+	@llc --version | head -1 || echo "❌ LLVM not found"
 	@echo ""
 	@echo "bpftool:"
-	@bpftool version 2>/dev/null || echo "❌ bpftool bulunamadı"
+	@bpftool version 2>/dev/null || echo "❌ bpftool not found"
 	@echo ""
 	@echo "Docker:"
-	@docker --version || echo "❌ Docker bulunamadı"
+	@docker --version || echo "❌ Docker not found"
 
-# Port monitor eBPF örneği (güvenlik)
+# Port monitor eBPF example (security)
 build-port-monitor:
-	@echo "🔒 Port izleme eBPF programı derleniyor..."
+	@echo "🔒 Compiling port monitoring eBPF program..."
 	go generate -run=PortMonitor ./main_port_monitor.go
 	go build -o port-monitor main_port_monitor.go
-	@echo "✅ port-monitor derlendi."
+	@echo "✅ port-monitor compiled."
 
 run-port-monitor: build-port-monitor
-	@echo "🚦 SSH portu (22) izleniyor..."
+	@echo "🚦 Monitoring SSH port (22)..."
 	sudo ./port-monitor

@@ -48,15 +48,15 @@ if command -v curl >/dev/null 2>&1; then
         curl -s --max-time 5 "$url" > /dev/null 2>&1
         echo "$(show_time) HTTP request: $url"
     done
-    echo "$(show_time) ✅ HTTP testleri tamamlandı"
+    echo "$(show_time) ✅ HTTP tests completed"
 else
-    echo "$(show_time) ⚠️  curl bulunamadı, HTTP testleri atlanıyor"
+    echo "$(show_time) ⚠️  curl not found, HTTP tests skipped"
 fi
 echo ""
 
 # Test 4: Generate some continuous traffic
-echo "$(show_time) Test 4: Sürekli trafik oluşturma (10 saniye)..."
-echo "$(show_time) Arka planda ping trafiği oluşturuluyor..."
+echo "$(show_time) Test 4: Generating continuous traffic (10 seconds)..."
+echo "$(show_time) Creating background ping traffic..."
 
 # Start background ping
 ping -i 0.5 8.8.8.8 > /dev/null 2>&1 &
@@ -64,16 +64,16 @@ PING_PID=$!
 
 # Wait for 10 seconds
 for i in {1..10}; do
-    echo "$(show_time) Sürekli trafik: $i/10 saniye"
+    echo "$(show_time) Continuous traffic: $i/10 seconds"
     sleep 1
 done
 
 # Stop background ping
 kill $PING_PID 2>/dev/null
-echo "$(show_time) ✅ Sürekli trafik testi tamamlandı"
+echo "$(show_time) ✅ Continuous traffic test completed"
 echo ""
 
-echo "$(show_time) 🎉 Tüm testler tamamlandı!"
-echo "$(show_time) eBPF programının paket sayısındaki artışı gözlemleyin."
+echo "$(show_time) 🎉 All tests completed!"
+echo "$(show_time) Observe the increase in packet count from the eBPF program."
 echo ""
-echo "💡 İpucu: Go uygulamasının çıktısında paket sayısının arttığını görebilirsiniz."
+echo "💡 Tip: You can see the increase in packet count in the output of the Go application."

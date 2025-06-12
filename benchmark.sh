@@ -48,17 +48,17 @@ get_packet_count() {
 }
 
 # Test 1: Baseline measurement
-echo "$(show_time) Test 1: Başlangıç ölçümü"
+echo "$(show_time) Test 1: Initial measurement"
 baseline_count=$(get_packet_count)
 if [ -z "$baseline_count" ] || [ "$baseline_count" = "0" ]; then
-    show_info "eBPF programı henüz paket saymaya başlamamış"
+    show_info "The eBPF program has not started counting packets yet"
     baseline_count=0
 fi
-show_result "Başlangıç paket sayısı: $baseline_count"
+show_result "Initial packet count: $baseline_count"
 echo ""
 
 # Test 2: Single ping performance
-echo "$(show_time) Test 2: Tekil ping performansı"
+echo "$(show_time) Test 2: Single ping performance"
 start_count=$(get_packet_count)
 start_time=$(date +%s.%N)
 
@@ -70,12 +70,12 @@ end_count=$(get_packet_count)
 ping_duration=$(echo "$end_time - $start_time" | bc 2>/dev/null || echo "0")
 packets_captured=$((end_count - start_count))
 
-show_result "Ping süresi: ${ping_duration}s"
-show_result "Yakalanan paket: $packets_captured"
+show_result "Ping duration: ${ping_duration}s"
+show_result "Packets captured: $packets_captured"
 echo ""
 
 # Test 3: Burst ping test
-echo "$(show_time) Test 3: Hızlı ping serisi (10 paket)"
+echo "$(show_time) Test 3: Fast ping series (10 packets)"
 start_count=$(get_packet_count)
 start_time=$(date +%s.%N)
 
@@ -92,13 +92,13 @@ else
     pps="N/A"
 fi
 
-show_result "Burst test süresi: ${burst_duration}s"
-show_result "Yakalanan paket: $burst_packets"
-show_result "Paket/saniye: $pps"
+show_result "Burst test duration: ${burst_duration}s"
+show_result "Packets captured: $burst_packets"
+show_result "Packets/second: $pps"
 echo ""
 
 # Test 4: Sustained traffic test
-echo "$(show_time) Test 4: Sürekli trafik testi (30 saniye)"
+echo "$(show_time) Test 4: Continuous traffic test (30 seconds)"
 start_count=$(get_packet_count)
 start_time=$(date +%s)
 
@@ -111,7 +111,7 @@ for i in {1..30}; do
     current_count=$(get_packet_count)
     current_packets=$((current_count - start_count))
     current_pps=$(echo "scale=1; $current_packets / $i" | bc 2>/dev/null || echo "0")
-    printf "\r$(show_time) %2d/30s | Paket: %4d | Ort. PPS: %s" $i $current_packets $current_pps
+    printf "\r$(show_time) %2d/30s | Packets: %4d | Avg. PPS: %s" $i $current_packets $current_pps
     sleep 1
 done
 
@@ -127,33 +127,33 @@ sustained_packets=$((end_count - start_count))
 sustained_pps=$(echo "scale=2; $sustained_packets / $sustained_duration" | bc 2>/dev/null || echo "N/A")
 
 echo ""
-show_result "Sürekli test süresi: ${sustained_duration}s"
-show_result "Toplam yakalanan paket: $sustained_packets"
-show_result "Ortalama paket/saniye: $sustained_pps"
+show_result "Sustained test duration: ${sustained_duration}s"
+show_result "Total packets captured: $sustained_packets"
+show_result "Average packets/second: $sustained_pps"
 echo ""
 
 # Test 5: CPU usage estimation (if top is available)
 if command -v top >/dev/null 2>&1; then
-    echo "$(show_time) Test 5: CPU kullanımı tahmini"
-    show_info "5 saniye boyunca CPU kullanımı ölçülüyor..."
+    echo "$(show_time) Test 5: CPU usage estimation"
+    show_info "Measuring CPU usage for 5 seconds..."
     
     # Get process ID of our Go application (if running)
     go_pid=$(pgrep -f "packet-counter" | head -1)
     if [ -n "$go_pid" ]; then
         cpu_usage=$(top -p $go_pid -b -n 1 | tail -1 | awk '{print $9}' 2>/dev/null || echo "N/A")
-        show_result "Go uygulaması CPU kullanımı: %$cpu_usage"
+        show_result "Go application CPU usage: %$cpu_usage"
     else
-        show_info "Go uygulaması çalışır durumda değil"
+        show_info "Go application is not running"
     fi
     echo ""
 fi
 
 # Summary
-echo "$(show_time) 📋 Performans Özeti"
+echo "$(show_time) 📋 Performance Summary"
 echo "================================"
-echo "🎯 Baseline: $baseline_count paket"
-echo "🏓 Tekil ping: $packets_captured paket yakalandı"
-echo "💨 Burst test: $burst_packets paket, $pps PPS"
-echo "⏱️  Sürekli test: $sustained_packets paket, $sustained_pps PPS"
+echo "🎯 Baseline: $baseline_count packets"
+echo "🏓 Single ping: $packets_captured packets captured"
+echo "💨 Burst test: $burst_packets packets, $pps PPS"
+echo "⏱️  Sustained test: $sustained_packets packets, $sustained_pps PPS"
 echo ""
-show_result "Test tamamlandı! eBPF programı düzgün çalışıyor."
+show_result "Test completed! eBPF program is working correctly."

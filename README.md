@@ -97,62 +97,63 @@ sudo ./packet-counter
 
 ---
 
-## 📚 Ek Kaynaklar
+## 📚 Additional Resources
 
-- **`tr-ebpf-golang.md`**: Detaylı Türkçe blog yazısı ve açıklamalar
-- **`bpftrace-examples/`**: İleri seviye eBPF örnekleri
-- **Docker logs**: `docker-compose logs -f` ile çıktıları takip edin
+- **`tr-ebpf-golang.md`**: Detailed blog post and explanations
+- **`bpftrace-examples/`**: Advanced eBPF examples
+- **Docker logs**: Follow outputs with `docker-compose logs -f`
 
 ---
 
-## 🛠️ Geliştirme Notları
+## 🛠️ Development Notes
 
-### Çözülen Sorunlar
-- ✅ bpf2go fonksiyon isimlendirme sorunları düzeltildi
-- ✅ Docker build sorunları (kernel headers, asm/types.h) çözüldü  
-- ✅ eBPF helper fonksiyonları custom header ile sağlandı
-- ✅ Go modül uyumluluğu sağlandı
+### Resolved Issues
+- ✅ bpf2go function naming issues fixed
+- ✅ Docker build issues (kernel headers, asm/types.h) resolved  
+- ✅ eBPF helper functions provided with custom header
+- ✅ Go module compatibility ensured
 
-### Test Etme
-Gerçek ağ trafiğini test etmek için konteyner içinde:
+### Testing
+To test real network traffic inside the container:
 ```bash
-# Ping ile trafik oluştur
+# Generate traffic with Ping
 ping -c 5 8.8.8.8
 
-# Paket sayısının artışını gözlemle
+# Observe the increase in packet count
 ```
 
 ---
 
-## 🛡️ Güvenlik Örneği: SSH Portu İzleme (eBPF)
+## 🛡️ Security Example: SSH Port Monitoring (eBPF)
 
-Bu projede ayrıca, SSH portuna (22) gelen TCP bağlantılarını tespit eden ve loglayan bir eBPF + Go örneği de bulunmaktadır.
+This project also includes an example of eBPF + Go that detects and logs TCP connections to the SSH port (22).
 
-### Derleme ve Çalıştırma
+### Compilation and Execution
 
 ```bash
 make run-port-monitor
 ```
-veya manuel olarak:
+or manually:
 ```bash
-# eBPF Go bindinglerini oluştur
+# Generate eBPF Go bindings
 GOOS=linux go generate -run=PortMonitor ./main_port_monitor.go
-# Go uygulamasını derle
+# Compile the Go application
 GOOS=linux go build -o port-monitor main_port_monitor.go
-# Uygulamayı başlat (root yetkisiyle)
+# Start the application (with root privileges)
 sudo ./port-monitor
 ```
 
-### Çıktı Örneği
+### Example Output
 ```
-SSH port (22) bağlantıları izleniyor... (interface: eth0)
-Çıkmak için Ctrl+C
-2025/06/12 13:37:12 SSH bağlantı denemesi: 192.168.1.100:54321 -> 192.168.1.10:22
+Monitoring SSH port (22) connections... (interface: eth0)
+Press Ctrl+C to exit
+2025/06/12 13:37:12 SSH connection attempt: 192.168.1.100:54321 -> 192.168.1.10:22
 ```
 
-> İzlenen portu değiştirmek için `ebpf/port_monitor.c` dosyasındaki `watch_port` değişkenini güncelleyebilirsiniz.
+> To change the monitored port, update the `watch_port` variable in the `ebpf/port_monitor.c` file.
 
 ---
 
-## 📄 Lisans
-Bu proje MIT lisansı altında yayınlanmıştır.
+## 📄 License
+
+This project is licensed under the MIT License.
